@@ -1,0 +1,19 @@
+While reading through [Tonc](https://gbadev.net/tonc/regbg.html), I decided to check out what's been said by loading Pokemon Emerald and doing some reverse engineering of my own.
+
+By checking the tiled backgrounds (maps), I realised that the "metatiles" the game uses are all made in-software and aren't actually part of the hardware tilemap engine the GBA provides.
+They do allow for a lot more freedom.
+
+In that vein of fucking around and finding out, I realised that BG0 always has textboxes. In theory, mugshots shouldn't need to be sprites if the textboxes were designed around them.
+
+VRAM is organized as is:
+    - main tiles        (0x06 00 00 00, charblock 0, screenblock 0)
+    - secondary tiles   (0x06 00 3d e0, charblock 1, screenblock 7)
+    - Menu text         (0x06 00 a7 20, charblock 2, screenblock 20)
+    - Text              (0x06 00 b2 80, charblock 2, screenblock 22)
+    - Textbox (outside) (0x06 00 c0 00, charblock 3, screenblock 24)
+    - Map tilemap       (0x06 00 e0 00, charblock 3, screenblock 28)
+    - Menu tilemap      (0x06 00 f8 00, charblock 3, screenblock 31)
+    - Textbox tilemap   (0x06 00 fb 80, charblock 3, screenblock 31)
+
+Maybe I should follow suit: reserve specific regions of VRAM for textboxes and for the menu so that nothing can touch them? I now understand why rom hackers made mugshots into sprites.
+VRAM is a very limited resource that fills up very quickly. In fact, the only reason we can do so much with pokeemerald is because the tilemaps refresh - out of bounds areas are updated with new tiles as you scroll.
